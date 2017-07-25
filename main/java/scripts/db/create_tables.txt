@@ -1,0 +1,232 @@
+# Script to create necessary tables for TaskBuddy web application
+# @author Siddhardha
+
+-- USE TaskBuddy;
+
+# ========== Drop tables ==========
+
+DROP TABLE IF EXISTS UserTasks;
+DROP TABLE IF EXISTS GroupTasks;
+DROP TABLE IF EXISTS Tasks;
+
+DROP TABLE IF EXISTS GroupMemberships;
+DROP TABLE IF EXISTS Groups;
+
+DROP TABLE IF EXISTS Logins;
+DROP TABLE IF EXISTS Users;
+
+# =================================
+
+
+# ========== Users table ==========
+
+CREATE TABLE IF NOT EXISTS Users
+(
+user_id int NOT NULL AUTO_INCREMENT,
+user_first_name varchar(20) NOT NULL,
+user_last_name varchar(20) NOT NULL,
+user_image varchar(50) UNIQUE,
+user_created_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+is_user_deleted boolean NOT NULL DEFAULT false,
+total_score double NOT NULL DEFAULT 0,
+current_score double NOT NULL DEFAULT 0,
+current_points double NOT NULL DEFAULT 0,
+weekly_points double NOT NULL DEFAULT 0,
+fb_id LONG NOT NULL,
+PRIMARY KEY (user_id)
+);
+
+# =================================
+
+
+# ========== Logins table ==========
+
+CREATE TABLE IF NOT EXISTS Logins
+(
+login_id int NOT NULL AUTO_INCREMENT,
+user_id int NOT NULL,
+username varchar(20) NOT NULL UNIQUE,
+user_password varchar(20) NOT NULL,
+user_role varchar(10) NOT NULL DEFAULT 'user',
+PRIMARY KEY (login_id),
+FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+# ==================================
+
+
+# ========== Groups table ==========
+
+CREATE TABLE IF NOT EXISTS Groups
+(
+group_id int NOT NULL AUTO_INCREMENT,
+group_name varchar(30) NOT NULL,
+group_admin_user_id int NOT NULL,
+group_image varchar(50) UNIQUE,
+group_created_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+is_group_deleted boolean NOT NULL DEFAULT false,
+PRIMARY KEY (group_id),
+FOREIGN KEY (group_admin_user_id) REFERENCES Users(user_id)
+);
+
+# ==================================
+
+
+# ========== GroupMemberships table ==========
+
+CREATE TABLE IF NOT EXISTS GroupMemberships
+(
+group_id int NOT NULL,
+user_id int NOT NULL,
+user_joined_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+has_user_unjoined boolean NOT NULL DEFAULT false,
+PRIMARY KEY (group_id, user_id),
+FOREIGN KEY (user_id) REFERENCES Users(user_id),
+FOREIGN KEY (group_id) REFERENCES Groups(group_id)
+);
+
+# ============================================
+
+
+# ========== Tasks table ==========
+
+CREATE TABLE IF NOT EXISTS Tasks
+(
+task_id int NOT NULL AUTO_INCREMENT,
+task_title varchar(50) NOT NULL,
+task_description varchar(500) NOT NULL,
+task_original_point_value double NOT NULL DEFAULT 0,
+task_updated_point_value double NOT NULL DEFAULT 0,
+task_created_by int NOT NULL,
+task_created_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+task_due_date datetime NOT NULL,
+is_task_completed boolean NOT NULL DEFAULT false,
+is_task_deleted boolean NOT NULL DEFAULT false,
+task_repetition varchar(10) NOT NULL DEFAULT 'NoRepeat',
+is_task_master boolean NOT NULL DEFAULT true,
+task_due_duration int NOT NULL,
+is_task_overdue boolean NOT NULL DEFAULT false,
+PRIMARY KEY (task_id),
+FOREIGN KEY (task_created_by) REFERENCES Users(user_id)
+);
+
+# =================================
+
+
+# ========== GroupTasks table ==========
+
+CREATE TABLE IF NOT EXISTS GroupTasks
+(
+group_id int NOT NULL,
+task_id int NOT NULL,
+PRIMARY KEY (task_id),
+FOREIGN KEY (group_id) REFERENCES Groups(group_id),
+FOREIGN KEY (task_id) REFERENCES Tasks(task_id)
+);
+
+# ======================================
+
+
+# ========== UserTasks table ==========
+
+CREATE TABLE IF NOT EXISTS UserTasks
+(
+user_id int NOT NULL,
+task_id int NOT NULL,
+task_assigned_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+is_task_assigned boolean NOT NULL DEFAULT true,
+PRIMARY KEY (task_id, user_id),
+FOREIGN KEY (user_id) REFERENCES Users(user_id),
+FOREIGN KEY (task_id) REFERENCES Tasks(task_id)
+);
+
+# =====================================
+
+
+# ========== Reset Master Tasks event ==========
+
+SET GLOBAL event_scheduler = ON;
+
+DROP EVENT IF EXISTS reset_master_tasks;
+
+CREATE EVENT reset_master_tasks
+	ON SCHEDULE EVERY 1 WEEK STARTS '2014-11-16 00:00:00' 
+	DO
+		update Tasks
+		set is_task_completed = false
+		where is_task_master = true;
+
+# ==============================================
+
+
+# ========== Reset User points event ==========
+
+SET GLOBAL event_scheduler = ON;
+
+DROP EVENT IF EXISTS reset_user_points;
+
+DELIMITER $$
+
+CREATE EVENT reset_user_points
+	ON SCHEDULE EVERY 1 WEEK STARTS '2014-11-16 00:00:00' 
+	DO
+	BEGIN
+		update Users
+		set current_points = current_points + weekly_points;
+	END $$
+
+DELIMITER ;
+
+# ==============================================
+
+
+# ========== Advance Week Stored Procedure ============
+
+DROP PROCEDURE IF EXISTS advance_week;
+
+DELIMITER $$
+
+CREATE PROCEDURE advance_week ()
+	BEGIN
+		update Tasks
+		set is_task_completed = false
+		where is_task_master = true;
+		
+		update Users
+		set current_points = current_points + weekly_points;
+		
+		update Tasks
+		set is_task_overdue = true
+		where is_task_master = false
+		and task_due_date <= (NOW() + INTERVAL 1 WEEK);
+	END $$
+
+DELIMITER ;
+
+GRANT SELECT, INSERT, UPDATE ON mysql.proc TO 'tb_db_user'@'localhost';
+
+# =====================================================
+
+
+# ========== Reset Week Stored Procedure ============
+
+DROP PROCEDURE IF EXISTS reset_week;
+
+DELIMITER $$
+
+CREATE PROCEDURE reset_week ()
+	BEGIN
+		
+		update Users
+		set current_points = current_points - weekly_points;
+		
+		update Tasks
+		set is_task_overdue = false;
+		
+	END $$
+
+DELIMITER ;
+
+GRANT SELECT, INSERT, UPDATE ON mysql.proc TO 'tb_db_user'@'localhost';
+
+# ===================================================
