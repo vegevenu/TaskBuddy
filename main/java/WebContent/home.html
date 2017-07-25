@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Buddy</title>
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
+    
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+    
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    
+    <style>
+    	
+    	.centered {
+    	   align: center;
+		}
+    </style>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/login.js"></script>
+  </head>
+  
+  <body>
+  	  
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="brand" href="#">Task Buddy</a>
+          <a href="javascript: fbLogin()" class="btn pull-right"><i class="icon-home"></i> &nbsp;&nbsp;Login</a> <!-- Invoking facebook Login dialog on click of this button --> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="container-fluid content">
+     <div class="row-fluid">
+        <div id="home-page-content">
+     		<div id="text">
+     		<h1 class="page-header"> Welcome to TaskBuddy!!!</h1>
+     		<h4>Keep track of what needs to be done with TaskBuddy</h4>
+     		<div class="row-fluid">
+     		<a href="javascript: fbLogin()" class="home-buttons btn"><i class="icon-leaf"></i> &nbsp;&nbsp;Register</a> <!-- Invoking facebook Login dialog on click of this button -->
+     		&nbsp;&nbsp;&nbsp;&nbsp;
+     		<a href="javascript: fbLogin()" class="home-buttons btn"><i class="icon-home"></i> &nbsp;&nbsp;Login</a> <!-- Invoking facebook Login dialog on click of this button -->
+     		</div>
+     		</div>
+        </div>
+     </div>
+    </div>
+    
+	<div id="background">
+		<img id="bg-img" alt="" src="images/background.jpg" />
+	</div> 
+ 	     
+ 	<div id="footer">
+	<div class="row">
+	<div class="col-xs-12 col-sm-7 footer-text">
+ 	&copy; Copyright <script type="text/javascript">document.write((new Date()).getFullYear());</script> Team 4. All Rights Reserved.
+	</div>
+	<div class="col-xs-12 col-sm-5 footer-text">
+	<span id="name">Site designed by <em>Team 4</em></span>
+	</div>
+	</div>
+	</div>
+ 	
+  </body>
+</html>
