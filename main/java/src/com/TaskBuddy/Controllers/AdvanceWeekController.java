@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.TaskBuddy.db.ConnectionManager;
 
 /**
- * @author Siddhardha
+ * 
  *
  * Controller class to call advance_week stored procedure
  *
