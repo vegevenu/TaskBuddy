@@ -10,7 +10,7 @@ import com.TaskBuddy.db.ConnectionManager;
 
 
 /**
- * @author Sai
+ * @author venu
  *
  * Controller class to call reset_week stored procedure
  *
