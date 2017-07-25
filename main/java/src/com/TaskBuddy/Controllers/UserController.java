@@ -15,7 +15,7 @@ import com.TaskBuddy.db.ConnectionManager;
 
 
 /**
- * @author Siddhardha
+ * @author venu
  *
  * Controller class for Users table
  *
