@@ -14,7 +14,7 @@ import com.TaskBuddy.Models.Task;
 import com.TaskBuddy.db.ConnectionManager;
 
 /**
- * @author Siddhardha
+ * @author venu
  *
  * Controller class for Tasks table
  *
