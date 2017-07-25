@@ -13,7 +13,7 @@ import com.TaskBuddy.Models.Login;
 import com.TaskBuddy.db.ConnectionManager;
 
 /**
- * @author Siddhardha
+ * @author venu
  *
  * Controller class for Logins table
  *
