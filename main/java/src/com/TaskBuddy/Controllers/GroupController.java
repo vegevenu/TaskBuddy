@@ -14,7 +14,7 @@ import com.TaskBuddy.Models.Group;
 import com.TaskBuddy.db.ConnectionManager;
 
 /**
- * @author Siddhardha
+ * @author venu
  *
  * Controller class for Groups table
  *
