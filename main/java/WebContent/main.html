@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Task Buddy</title>
+<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="css/custom.css" rel="stylesheet">
+
+<script type="text/javascript" src="js/login.js"></script>
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container-fluid">
+				<a class="brand" href="#">Task Buddy</a> 
+				<a href="javascript: fbLogout()" class="btn pull-right"><i class="icon-off"></i>&nbsp;&nbsp;Logout</a>
+				<a id="advance-btn" class="btn pull-right" onclick="advanceWeek()">+1 week</a>
+				<a id="reset-btn" class="btn pull-right" onclick="resetWeek()">Normal mode</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="container-fluid content">
+		<div class="row-fluid">
+			<div class="span3">
+				<div class="page-header myheader">
+					<div class="row-fluid user-title">
+						<h3>
+							<span>User</span>'s Dashboard:
+						</h3>
+					</div>
+				</div>
+				<div class="well sidebar-nav">
+					<ul class="nav nav-list" id="users">
+						<li class="nav-header"><h6 class="friends">Friends</h6></li>
+					</ul>
+				</div>
+				<div>
+					<a href="#add-user" id="add-user" class="btn pull-right user-buttons"><i class="icon-user"></i>&nbsp;&nbsp;Add Friend</a> 
+					<a href="#delete-user" id="remove-user" role="button" class="btn pull-right offset-right user-buttons">
+						<i class="icon-trash"></i>&nbsp;&nbsp;Remove Friend</a>
+				</div>
+			</div>
+			<div class="span9 main-content">
+				<div>
+					<div class="row-fluid">
+						<ul class="nav nav-tabs">
+						<li class="active user-title" id="my-tasks-title">
+							<a id="myTasks" class="myTasks"  href="#user" onclick="activeMyTasks()"><span>User</span>'s Tasks</a>
+						</li>
+						<li id="master-title">
+							<a id="masterTasks" class="masterTasks" href="#master" onclick="activeMasterTasks()"><span> Master Tasks</span></a>
+						</li>
+						</ul>
+						<div class='success'>Master Task Created Successfully</div>
+						<div class='assigned'>Task Assigned Successfully</div>
+					</div>
+					<div class="row-fluid">
+						<div id="div1">
+							<a href="#add-task" id="add-task" role="button" class="btn pull-right" data-toggle="modal">
+								<i class="icon-tasks"></i>&nbsp;&nbsp;Add Master Task</a>
+						</div>
+						<div id="taskFilterList" class="row-fluid">
+						<div class="span6">
+							<h5>
+								Show Tasks Due: &nbsp;&nbsp;&nbsp; 
+								<input type="radio" name="group1" id="previous" value="previous"> OverDue
+								&nbsp;&nbsp; 
+								<input type="radio" name="group1" id="this_week" value="week"> This Week 
+								&nbsp;&nbsp; 
+								<input type="radio" name="group1" id="later" value="later"> Later 
+								&nbsp;&nbsp; 
+								<input type="radio" name="group1" id="all_tasks" value="all" checked="checked"> All
+							</h5>
+						</div>
+						<div class="span6">
+							<h4 class="pull-right"> Points left:&nbsp;<span id="score"></span>&nbsp;
+							</h4>
+						</div>
+					</div>
+					</div>
+				</div>
+				<div class="table-responsive">
+					<div class="row-fluid">&nbsp;</div>
+					<table id="task-table" class="table table-hover table-striped table-bordered">
+						<thead>
+							<tr>
+								<th class="status-col">Status</th>
+								<th>Title</th>
+								<th>Description</th>
+								<th>Points</th>
+								<th class="date-col">Due Date</th>
+								<th class="action-col" colspan = "2" >&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody id="tasks">
+						</tbody>
+						<tbody id="masterTasks">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
+	<script type="text/javascript" src="js/fw/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/fw/bootstrap-datetimepicker.min.js"></script>
+	<script type="text/javascript" src="js/fw/jquery.stickytabs.js"></script>
+	<script type="text/javascript" src="js/fw/underscore.min.js"></script>
+	<script type="text/javascript" src="js/fw/backbone.min.js"></script>
+	<script type="text/javascript" src="js/fw/backbone-validation-min.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+
+	<script type="text/template" id="user-dialog">
+		<div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="Add User" aria-hidden="true">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+	        <h3 id="myModalLabel">Edit User</h3>
+	      </div>
+	      <div class="modal-body">
+	        <form class="form-inline">
+				<input type="text" name="userFirstName" class="input-block-level user-firstName dialog-inputs" placeholder="First Name" value="<%= userFirstName %>" required>
+				<input type="text" name="userLastName" class="input-block-level user-lastName dialog-inputs" placeholder="Last Name" value="<%= userLastName %>" required>
+                <input type="number" min="0" max="100" step="1" name="weeklyPoints" class="input-small input-weeklyPoints dialog-inputs" value="<%= weeklyPoints.toFixed(4) %>" required onkeypress="return isNumberKey(event)" >
+
+	        </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button class="btn close-action" data-dismiss="modal" aria-hidden="true">Cancel</button>
+	        <button class="btn btn-primary save-action">Save</button>
+	      </div>
+	    </div>
+	    <div class="modal-backdrop fade in"></div>
+	</script>
+
+	<script type="text/template" id="user-item">
+		<a href="#<%= userId %>" data-id="<%= userId %>"><%= userFirstName %> <%= userLastName %></a>
+	</script>
+
+	<script type="text/template" id="task-dialog">
+		<div class="modal in fade" tabindex="-1" role="dialog" aria-labelledby="Add Task" aria-hidden="true">
+	      <div class="modal-header">
+	        <button id="close" type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+	        <h3 id="myModalLabel">Assign Task</h3>
+	      </div>
+	      <div class="modal-body">
+	        <form class="form-inline">
+	           <input type="text" maxlength="50" name="taskTitle" class="input-block-level input-taskTitle dialog-inputs" value="<%= taskTitle %>" required readonly>
+		       <input type="text" maxlength="500" name="taskDescription" class="input-block-level input-taskDescription dialog-inputs" value="<%= taskDescription %>" required readonly>
+	           <input type="number" min="1" max="100" step="1" name="taskOriginalPointValue" class="input-small input-taskPointValue dialog-inputs" value="<%= taskOriginalPointValue.toFixed(4) %>" required onkeypress="return isNumberKey(event)" readonly>
+
+	          <div id="dp1" class="input-append date dialog-inputs">
+	          	<input class="input-medium" name="taskDueDate" value="<%= taskDueDate %>" data-format="yyyy-MM-dd hh:mm:ss" type="text" placeholder="Due Date" required readonly>
+	          	<span class="add-on">
+	          		<i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+	          	</span>
+	          </div>
+
+<!-- Assign User -->
+<div class="btn-group input-block-level dialog-inputs">
+  <button id="userButton" type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown">
+    Assign user <span class="caret"></span>
+  </button>
+ <%= console.log("list of users"+JSON.stringify(list_of_users)) %>
+  <ul class="dropdown-menu" role="menu">
+     <% _.each(list_of_users, function(eachUser){ %>
+    <li><a href="#" id="userli" title="<%= eachUser.userId %>"><%= eachUser.name %></a></li>
+    <% }); %>
+  </ul>
+<textarea rows="1" class="selected-user" id="displayUserName" required readonly></textarea>
+</div>
+
+			  <div class="input-taskRepetition dialog-inputs">
+				<input type="radio" name="taskRepetition" id="NoRepeat" value="NoRepeat" checked = "checked">
+				<label for="NoRepeat">NoRepeat&nbsp;&nbsp;</label>
+				<input type="radio" name="taskRepetition" id="Daily" value="Daily">
+				<label for="Daily">Daily&nbsp;&nbsp;</label>
+				<input type="radio" name="taskRepetition" id="Weekly" value="Weekly">
+				<label for="Weekly">Weekly&nbsp;&nbsp;</label>
+				<input type="radio" name="taskRepetition" id="Monthly" value="Monthly">
+				<label for="Monthly">Monthly&nbsp;&nbsp;</label>
+			  </div>
+	        </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button id="close" class="btn close-action" data-dismiss="modal" aria-hidden="true">Cancel</button>
+			<button id="save" class="btn btn-primary save-action">Save</button>
+	      </div>
+	    </div>
+	    <div class="modal-backdrop fade in"></div>
+	</script>
+
+	<script type="text/template" id="master-task-dialog">
+		<div class="modal in fade" tabindex="-1" role="dialog" aria-labelledby="Add Task" aria-hidden="true">
+	      <div class="modal-header">
+	        <button id="close" type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+	        <h3 id="myModalLabel">Add Master Task</h3>
+	      </div>
+	      <div class="modal-body">
+	        <form class="form-inline">
+	          <input type="text" maxlength="50" name="taskTitle" class="input-block-level input-taskTitle dialog-inputs" placeholder="Title" value="<%= taskTitle %>" required>
+		      <input type="text" maxlength="500" name="taskDescription" class="input-block-level input-taskDescription dialog-inputs" placeholder="Description" value="<%= taskDescription %>" required>
+	          <input type="number" min="1" max="100" step="1" name="taskOriginalPointValue" class="input-small input-taskPointValue dialog-inputs" placeholder="Points" value="<% if (taskOriginalPointValue != 0) taskOriginalPointValue %>" required onkeypress="return isNumberKey(event)">
+				&nbsp; &nbsp;
+	          <input type="number" min="1" step="1" name="taskDueDuration" class="input-medium input-taskDueDuration dialog-inputs" placeholder="Due Duration" value="<% if (taskDueDuration != 0) taskDueDuration %>" required onkeypress="return isNumberKey(event)">
+	        </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button id="close" class="btn close-action" data-dismiss="modal" aria-hidden="true">Cancel</button>
+			<button id="save" class="btn btn-primary save-action">Save</button>
+	      </div>
+	    </div>
+	    <div class="modal-backdrop fade in"></div>
+	</script>
+
+	<script type="text/template" id="task-item">
+		<td class="center-col">
+			<input type="checkbox" name="taskCompleted" value="1" <% if (taskCompleted) { %> checked="checked" <% } %> />
+		</td>
+		<td <% if (taskCompleted) { %> class="finished" <% } %>><%= taskTitle %></td>
+		<td <% if (taskCompleted) { %> class="finished" <% } %>><%= taskDescription %></td>
+		<td <% if (taskCompleted) { %> class="finished" <% } %>><%= taskOriginalPointValue.toFixed(4) %></td>
+		<td <% if (taskCompleted) { %> class="finished" <% } %>> 
+        <% var currentTime = new Date(parseInt(this.model.get("taskDueDate") ));
+		var day = currentTime.getDate();
+		var month = currentTime.getMonth() + 1;
+        var year = currentTime.getFullYear();
+        var hour = currentTime.getHours();
+        var mins = currentTime.getMinutes();
+		var date = (day < 10 ? '0' : '') + day  + "-" + months[month] + "-" + year + "  " + hour + ":" + (mins < 10 ? '0' : '') + mins ; %>
+		<%= date %>
+		</td>
+		<td class="center-col"><a href="#edit-task" class="edit-action"><i class="icon-edit"></i></a></td>
+		<td class="center-col"><a href="#delete-task" class="delete-action"><i class="icon-trash"></i></a></td>
+	</script>
+
+	<script type="text/template" id="master-task-item">
+		<td class="center-col">
+			<i <% if (!taskCompleted) { %> id="invcheckbox" <% } %> class="icon-ok"></i>
+			<input id = "invcheckbox" type="checkbox" name="taskCompleted" value="1" <% if (taskCompleted) { %> checked="checked" <% } %> />
+		</td>
+		<td <% if (taskCompleted) { %> class="finished" <% } %>><%= taskTitle %></td>
+		<td <% if (taskCompleted) { %> class="finished" <% } %>><%= taskDescription %></td>
+		<td <% if (taskCompleted) { %> class="finished" <% } %>><%= taskOriginalPointValue.toFixed(4) %></td>
+		<td <% if (taskCompleted) { %> class="finished" <% } %>>
+			<% var due = (taskDueDuration == 1 ? taskDueDuration + " day" : taskDueDuration + " days") %>
+			<%= due %>
+		</td>
+		<td class="center-col"><a href="#edit-task" class="edit-action"><i class="icon-plus"></i></a></td>
+		<td class="center-col"><a href="#delete-task" class="delete-action"><i class="icon-trash"></i></a></td>
+	</script>
+
+</body>
+</html>
